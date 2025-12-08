@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>음성통역 연습 플레이어</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #0f172a;
+      --card: #1f2937;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59,130,246,0.2);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      margin: 16px;
+      padding: 20px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.9));
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.7),
+        0 0 0 1px rgba(148,163,184,0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.3);
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.6fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 840px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-card,
+    .info-card {
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.08), rgba(15,23,42,0.96));
+      border-radius: 16px;
+      padding: 12px 12px 14px;
+      border: 1px solid rgba(148,163,184,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #020617;
+      border: 1px solid rgba(148,163,184,0.3);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.7);
+    }
+
+    video {
+      width: 100%;
+      display: block;
+      background: #000;
+    }
+
+    .video-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+
+    .controls-primary,
+    .controls-secondary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .controls-primary {
+      margin-top: 4px;
+      align-items: center;
+    }
+
+    .controls-secondary {
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.95);
+      color: var(--text);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: rgba(30,64,175,0.75);
+      border-color: rgba(96,165,250,0.9);
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.6);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: rgba(129,140,248,0.9);
+      box-shadow: 0 12px 25px rgba(59,130,246,0.45);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-toggle {
+      background: rgba(15,23,42,0.95);
+    }
+
+    .btn-toggle.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #bfdbfe;
+    }
+
+    .key-hint {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.95);
+      color: var(--muted);
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .progress-row input[type="range"] {
+      flex: 1;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .answer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .answer-box {
+      margin-top: 8px;
+      padding: 10px 11px;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.95);
+      border: 1px dashed rgba(148,163,184,0.6);
+      min-height: 48px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .answer-box.hidden-text {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .answer-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .answer-text strong {
+      color: #e5e7eb;
+    }
+
+    .shortcut-list {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .shortcut-item {
+      display: flex;
+      gap: 4px;
+      align-items: baseline;
+    }
+
+    .shortcut-keys {
+      min-width: 78px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.72rem;
+      color: #cbd5f5;
+    }
+
+    .shortcut-desc {
+      flex: 1;
+    }
+
+    footer {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
+      background: rgba(15,23,42,0.96);
+    }
+
+    select, input[type="range"] {
+      background: rgba(15,23,42,0.96);
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: var(--text);
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+
+    select:focus, input[type="range"]:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .speed-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .counter-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-group">
+        <h1>음성통역 연습 플레이어 (테스트)</h1>
+        <div class="subtitle">
+          수어 영상을 보고 <strong>머릿속으로 해석 → 입으로 말하기</strong> 연습 후<br />
+          「정답 보기」로 표제어와 용례 문장을 확인하세요.
+        </div>
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        GitHub 정적 페이지용 · 로컬 영상 재생
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- 왼쪽: 영상 / 기본 조작 -->
+      <section class="video-card">
+        <div class="video-wrapper" id="video-container">
+          <video id="video" controls playsinline>
+            <!-- src는 JS에서 설정 -->
+            브라우저가 video 태그를 지원하지 않습니다.
+          </video>
+        </div>
+
+        <div class="video-meta">
+          <span class="pill" id="meta-index">0 / 0</span>
+          <span class="pill" id="meta-file">파일: -</span>
+        </div>
+
+        <div class="controls-primary">
+          <button class="btn" id="btn-prev">
+            ◀ 이전 (<span class="key-hint">←</span>)
+          </button>
+          <button class="btn btn-primary" id="btn-play-pause">
+            ▶ 재생 / 일시정지 (<span class="key-hint">Space</span>)
+          </button>
+          <button class="btn" id="btn-next">
+            다음 ▶ (<span class="key-hint">→</span>)
+          </button>
+          <button class="btn btn-toggle" id="btn-random">
+            🔀 랜덤 순서 (<span class="key-hint">R</span>)
+          </button>
+          <button class="btn" id="btn-fullscreen">
+            ⛶ 전체화면 (<span class="key-hint">F</span>)
+          </button>
+        </div>
+
+        <div class="controls-secondary">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span class="speed-label">재생속도</span>
+            <select id="speed-select">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2.0x</option>
+            </select>
+          </div>
+          <div class="progress-row">
+            <span id="time-current">00:00</span>
+            <input type="range" id="seek-bar" min="0" max="100" step="0.1" value="0" />
+            <span id="time-duration">00:00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 오른쪽: 정답/단축키 안내 -->
+      <section class="info-card">
+        <div class="answer-header">
+          <div>
+            <div class="answer-label">현재 문제</div>
+            <div id="current-label" style="font-size:0.9rem;margin-top:2px;color:#e5e7eb;">
+              -
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <button class="btn btn-primary" id="btn-toggle-answer">
+              정답 보기 (<span class="key-hint">A</span>)
+            </button>
+            <span class="answer-label" id="answer-status">현재: 정답 숨김</span>
+          </div>
+        </div>
+
+        <div class="answer-box hidden-text" id="answer-box">
+          정답을 보려면 위의 「정답 보기」 버튼 또는 A 키를 누르세요.
+        </div>
+
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <span class="shortcut-keys">← / →</span>
+            <span class="shortcut-desc">이전 / 다음 영상으로 이동</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">Space</span>
+            <span class="shortcut-desc">재생 / 일시정지</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">R</span>
+            <span class="shortcut-desc">랜덤 순서 토글 (켜면 전체 목록 섞기)</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">F</span>
+            <span class="shortcut-desc">전체화면 토글 (영상 영역 기준)</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">J / L</span>
+            <span class="shortcut-desc">5초 뒤로(J) / 5초 앞으로(L) 이동</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">↓ / ↑</span>
+            <span class="shortcut-desc">재생속도 0.1x 단위로 느리게 / 빠르게</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-keys">A</span>
+            <span class="shortcut-desc">정답 보기 / 숨기기</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div class="small-pill">
+        🔧 GitHub에 올릴 때: <code>index.html</code> + <code>videos/파일명.webm</code> 구조 유지
+      </div>
+      <div class="counter-pill" id="debug-info">
+        준비 중...
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ===== 1. 데이터 정의 =====
+    // 동영상 파일은 ./videos 폴더에 넣는다고 가정
+    const VIDEO_BASE_PATH = "./videos/";
+
+    /** @type {{id:string, file:string, headword:string, sentence:string}[]} */
+    const ITEMS = [
+      {
+        id: "1-1",
+        file: "1-1.webm",
+        headword: "보다",
+        sentence: "1) 내가 담근 김치가 사 먹는 김치보다 맛있다."
+      },
+      {
+        id: "1-2",
+        file: "1-2.webm",
+        headword: "보다",
+        sentence: "2) 나는 상대방보다 언변이 더 좋다."
+      },
+      {
+        id: "1-3",
+        file: "1-3.webm",
+        headword: "보다",
+        sentence: "3) 소형 선풍기보다 대형 선풍기가 바람이 더 세다."
+      },
+      {
+        id: "1-4",
+        file: "1-4.webm",
+        headword: "보다",
+        sentence: "4) 청력검사 결과 나는 오른쪽 귀의 청력이 더 좋다."
+      },
+      {
+        id: "1-5",
+        file: "1-5.webm",
+        headword: "보다",
+        sentence: "5) 언니가 나보다 요리 솜씨가 더 뛰어나다."
+      },
+      {
+        id: "2-1",
+        file: "2-1.webm",
+        headword: "가져오다",
+        sentence: "1) 따뜻한 물을 가져다주세요."
+      },
+      {
+        id: "2-2",
+        file: "2-2.webm",
+        headword: "가져오다",
+        sentence: "2) 회의록을 저에게 가지고 오세요."
+      }
+    ];
+
+    // ===== 2. 상태 관리 =====
+    let playOrder = ITEMS.map((_, i) => i); // 현재 재생 순서(인덱스 배열)
+    let currentOrderIndex = 0;              // playOrder에서의 위치
+    let isRandom = false;
+    let answerVisible = false;
+
+    // ===== 3. DOM 참조 =====
+    const videoEl = document.getElementById("video");
+    const metaIndexEl = document.getElementById("meta-index");
+    const metaFileEl = document.getElementById("meta-file");
+    const currentLabelEl = document.getElementById("current-label");
+    const answerBoxEl = document.getElementById("answer-box");
+    const answerStatusEl = document.getElementById("answer-status");
+    const debugInfoEl = document.getElementById("debug-info");
+
+    const btnPrev = document.getElementById("btn-prev");
+    const btnNext = document.getElementById("btn-next");
+    const btnPlayPause = document.getElementById("btn-play-pause");
+    const btnRandom = document.getElementById("btn-random");
+    const btnFullscreen = document.getElementById("btn-fullscreen");
+    const btnToggleAnswer = document.getElementById("btn-toggle-answer");
+
+    const speedSelect = document.getElementById("speed-select");
+    const seekBar = document.getElementById("seek-bar");
+    const timeCurrent = document.getElementById("time-current");
+    const timeDuration = document.getElementById("time-duration");
+    const videoContainer = document.getElementById("video-container");
+
+    // ===== 4. 유틸리티 =====
+    function pad(num) {
+      return num.toString().padStart(2, "0");
+    }
+
+    function formatTime(sec) {
+      if (!isFinite(sec)) return "00:00";
+      const s = Math.floor(sec);
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${pad(m)}:${pad(r)}`;
+    }
+
+    function shuffleArray(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function getCurrentItem() {
+      const idx = playOrder[currentOrderIndex] ?? 0;
+      return ITEMS[idx];
+    }
+
+    function updateDebugInfo() {
+      const item = getCurrentItem();
+      const mode = isRandom ? "랜덤" : "순서";
+      debugInfoEl.textContent = `모드: ${mode} · 현재: ${currentOrderIndex + 1}/${playOrder.length} · ID: ${item.id}`;
+    }
+
+    // ===== 5. 로딩 / 화면 갱신 =====
+    function loadCurrentVideo(autoPlay = false) {
+      const total = playOrder.length;
+      if (total === 0) return;
+
+      // 범위 보정
+      if (currentOrderIndex < 0) currentOrderIndex = total - 1;
+      if (currentOrderIndex >= total) currentOrderIndex = 0;
+
+      const itemIndex = playOrder[currentOrderIndex];
+      const item = ITEMS[itemIndex];
+
+      const src = VIDEO_BASE_PATH + item.file;
+      if (videoEl.src !== src) {
+        videoEl.src = src;
+      }
+
+      // 메타 정보
+      metaIndexEl.textContent = `${currentOrderIndex + 1} / ${total}`;
+      metaFileEl.textContent = `파일: ${item.file}`;
+      currentLabelEl.textContent = `${item.headword} · ${item.id}`;
+
+      // 정답은 항상 숨김 상태로 시작
+      setAnswerVisible(false);
+
+      // 재생 시간 표시 초기화
+      seekBar.value = 0;
+      timeCurrent.textContent = "00:00";
+      timeDuration.textContent = "00:00";
+
+      // 자동 재생
+      if (autoPlay) {
+        videoEl.currentTime = 0;
+        videoEl.play().catch(() => {
+          // 자동 재생 막힌 경우 무시
+        });
+      }
+
+      updateDebugInfo();
+    }
+
+    function setAnswerVisible(visible) {
+      answerVisible = visible;
+      const item = getCurrentItem();
+      if (visible) {
+        answerBoxEl.classList.remove("hidden-text");
+        answerBoxEl.innerHTML =
+          `<div class="answer-text"><strong>[표제어]</strong> ${item.headword}<br/><strong>[용례]</strong> ${item.sentence}</div>`;
+        answerStatusEl.textContent = "현재: 정답 표시 중";
+      } else {
+        answerBoxEl.classList.add("hidden-text");
+        answerBoxEl.textContent =
+          "정답을 보려면 위의 「정답 보기」 버튼 또는 A 키를 누르세요.";
+        answerStatusEl.textContent = "현재: 정답 숨김";
+      }
+    }
+
+    function toggleAnswer() {
+      setAnswerVisible(!answerVisible);
+    }
+
+    // ===== 6. 조작 함수 =====
+    function goNext(autoPlay = true) {
+      currentOrderIndex++;
+      if (currentOrderIndex >= playOrder.length) currentOrderIndex = 0;
+      loadCurrentVideo(autoPlay);
+    }
+
+    function goPrev(autoPlay = true) {
+      currentOrderIndex--;
+      if (currentOrderIndex < 0) currentOrderIndex = playOrder.length - 1;
+      loadCurrentVideo(autoPlay);
+    }
+
+    function togglePlayPause() {
+      if (videoEl.paused) {
+        videoEl.play().catch(() => {});
+      } else {
+        videoEl.pause();
+      }
+    }
+
+    function setRandomMode(on) {
+      isRandom = on;
+      if (on) {
+        // 현재 보고있는 아이템은 유지한 상태에서 순서만 섞고, 그 아이템을 맨 앞으로 배치
+        const currentItemIndex = playOrder[currentOrderIndex] ?? 0;
+        const base = ITEMS.map((_, i) => i);
+        const shuffled = shuffleArray(base);
+        const currentPos = shuffled.indexOf(currentItemIndex);
+        if (currentPos > 0) {
+          [shuffled[0], shuffled[currentPos]] = [shuffled[currentPos], shuffled[0]];
+        }
+        playOrder = shuffled;
+        currentOrderIndex = 0;
+        btnRandom.classList.add("active");
+      } else {
+        // 원래 순서로
+        const currentItem = getCurrentItem();
+        playOrder = ITEMS.map((_, i) => i);
+        currentOrderIndex = playOrder.indexOf(ITEMS.indexOf(currentItem));
+        btnRandom.classList.remove("active");
+      }
+      loadCurrentVideo(false);
+    }
+
+    function adjustPlaybackRate(delta) {
+      let rate = videoEl.playbackRate + delta;
+      rate = Math.min(2.0, Math.max(0.3, rate));
+      rate = Math.round(rate * 10) / 10; // 0.1 단위
+      videoEl.playbackRate = rate;
+      // 셀렉트 박스 갱신 (근사값 찾기)
+      let found = false;
+      for (const opt of speedSelect.options) {
+        if (Math.abs(parseFloat(opt.value) - rate) < 0.05) {
+          speedSelect.value = opt.value;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        // 안 맞으면 그냥 value 업데이트용 임시 옵션으로 대체 가능하지만
+        // 여기서는 무시 (표시만 조금 어긋날 수 있음)
+      }
+    }
+
+    function seekBy(seconds) {
+      const t = videoEl.currentTime + seconds;
+      videoEl.currentTime = Math.min(videoEl.duration || t, Math.max(0, t));
+    }
+
+    function toggleFullscreen() {
+      const isFull =
+        document.fullscreenElement === videoContainer ||
+        document.fullscreenElement === document.documentElement;
+      if (!isFull) {
+        if (videoContainer.requestFullscreen) {
+          videoContainer.requestFullscreen();
+        } else if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // ===== 7. 이벤트 바인딩 =====
+    // 버튼
+    btnNext.addEventListener("click", () => goNext(true));
+    btnPrev.addEventListener("click", () => goPrev(true));
+    btnPlayPause.addEventListener("click", togglePlayPause);
+    btnRandom.addEventListener("click", () => setRandomMode(!isRandom));
+    btnFullscreen.addEventListener("click", toggleFullscreen);
+    btnToggleAnswer.addEventListener("click", toggleAnswer);
+
+    // 속도 셀렉트
+    speedSelect.addEventListener("change", () => {
+      const rate = parseFloat(speedSelect.value || "1");
+      videoEl.playbackRate = rate;
+    });
+
+    // 시크바
+    let isSeeking = false;
+    seekBar.addEventListener("input", () => {
+      isSeeking = true;
+      const percent = parseFloat(seekBar.value);
+      if (isFinite(videoEl.duration) && videoEl.duration > 0) {
+        const t = (percent / 100) * videoEl.duration;
+        videoEl.currentTime = t;
+        timeCurrent.textContent = formatTime(t);
+      }
+    });
+    seekBar.addEventListener("change", () => {
+      isSeeking = false;
+    });
+
+    // 비디오 시간 업데이트
+    videoEl.addEventListener("loadedmetadata", () => {
+      timeDuration.textContent = formatTime(videoEl.duration);
+    });
+    videoEl.addEventListener("timeupdate", () => {
+      if (!isSeeking && isFinite(videoEl.duration) && videoEl.duration > 0) {
+        const percent = (videoEl.currentTime / videoEl.duration) * 100;
+        seekBar.value = percent;
+        timeCurrent.textContent = formatTime(videoEl.currentTime);
+      }
+    });
+
+    // 자동 다음 영상
+    videoEl.addEventListener("ended", () => {
+      goNext(true);
+    });
+
+    // 키보드 단축키
+    window.addEventListener("keydown", (e) => {
+      const tag = (e.target.tagName || "").toLowerCase();
+      // 입력창 포커스 시에는 단축키 막기
+      if (tag === "input" || tag === "textarea" || e.target.isContentEditable) {
+        return;
+      }
+
+      switch (e.key) {
+        case "ArrowRight":
+          e.preventDefault();
+          goNext(true);
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          goPrev(true);
+          break;
+        case " ":
+          e.preventDefault();
+          togglePlayPause();
+          break;
+        case "r":
+        case "R":
+          e.preventDefault();
+          setRandomMode(!isRandom);
+          break;
+        case "f":
+        case "F":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+        case "j":
+        case "J":
+          e.preventDefault();
+          seekBy(-5);
+          break;
+        case "l":
+        case "L":
+          e.preventDefault();
+          seekBy(5);
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          adjustPlaybackRate(0.1);
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          adjustPlaybackRate(-0.1);
+          break;
+        case "a":
+        case "A":
+          e.preventDefault();
+          toggleAnswer();
+          break;
+      }
+    });
+
+    // ===== 8. 초기화 =====
+    function init() {
+      if (!ITEMS.length) {
+        debugInfoEl.textContent = "ITEMS 배열이 비어 있습니다.";
+        return;
+      }
+
+      playOrder = ITEMS.map((_, i) => i);
+      currentOrderIndex = 0;
+      isRandom = false;
+      btnRandom.classList.remove("active");
+      videoEl.playbackRate = 1.0;
+      speedSelect.value = "1";
+      setAnswerVisible(false);
+      loadCurrentVideo(false);
+    }
+
+    init();
+  </script>
+</body>
+</html>
