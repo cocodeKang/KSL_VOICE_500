@@ -84,10 +84,8 @@
       justify-content: center;
     }
     .video-wrapper:fullscreen video {
-      max-height: 100vh;
-      max-width: 100vw;
-      width: auto;
-      height: auto;
+      width: 100vw;
+      height: 100vh;
       border-radius: 0;
       object-fit: contain;
     }
@@ -1129,8 +1127,8 @@
     fullscreenBtn.addEventListener("click", toggleFullscreen);
     randomBtn.addEventListener("click", toggleRandomMode);
     toggleAnswerBtn.addEventListener("click", toggleAnswer);
-
-    videoEl.addEventListener("ended", nextClip);
+    // 영상 종료 시 다음으로 넘어가기
+    // videoEl.addEventListener("ended", nextClip);
 
     // 키보드 단축키
     document.addEventListener("keydown", (e) => {
