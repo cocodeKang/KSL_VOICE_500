@@ -60,7 +60,7 @@
       gap: 0.5rem;
     }
 
-    /* ★ 추가: 비디오와 팝업을 감싸는 래퍼 */
+    /* 비디오와 팝업을 감싸는 래퍼 */
     .video-wrapper {
       position: relative;
       width: 100%;
@@ -74,7 +74,7 @@
       display: block;
     }
 
-    /* ★ 전체화면일 때 래퍼/비디오 꽉 채우기 */
+    /* 전체화면일 때 래퍼/비디오 꽉 채우기 */
     .video-wrapper:fullscreen {
       width: 100vw;
       height: 100vh;
@@ -83,7 +83,7 @@
       align-items: center;
       justify-content: center;
     }
-       .video-wrapper:fullscreen video {
+    .video-wrapper:fullscreen video {
       max-height: 100vh;
       max-width: 100vw;
       width: auto;
@@ -91,7 +91,8 @@
       border-radius: 0;
       object-fit: contain;
     }
-    /* ★ 추가: 용례 팝업 오버레이 */
+
+    /* 용례 팝업 오버레이 */
     .example-overlay {
       position: absolute;
       inset: 0;
@@ -285,7 +286,7 @@
           </div>
         </div>
 
-        <!-- ★ 변경: 비디오를 video-wrapper로 감싸고, 팝업 오버레이 추가 -->
+        <!-- 비디오 + 용례 팝업 -->
         <div class="video-wrapper" id="videoWrapper">
           <video id="video" controls playsinline preload="metadata">
             <!-- webm 파일은 ./videos 폴더에 넣어두면 됨 -->
@@ -347,7 +348,7 @@
             <span><span class="kbd">R</span> 랜덤 토글 + 순서 섞기</span>
             <span><span class="kbd">0~9</span> 해당 % 위치로 점프</span>
             <span><span class="kbd">Enter</span> 정답 보기/숨기기</span>
-            <span><span class="kbd">E</span> 용례 문장 팝업</span> <!-- ★ 안내 추가 (선택) -->
+            <span><span class="kbd">E</span> 용례 문장 팝업</span>
           </div>
         </div>
       </section>
@@ -363,9 +364,12 @@
     // ===== 0. 비디오 경로 기본 폴더 =====
     const VIDEO_BASE_PATH = "./videos/";
 
+    // ===== 0-1. 상태 저장용 키 =====
+    const STORAGE_KEY = "voicePlayerSettings_v1";
+
     // ===== 1. 데이터 정의 =====
     const clipsOriginal = [
-      {id: "1",headword: "보다",sentence: " 내가 담근 김치가 사 먹는 김치보다 맛있다.",file: "1-1.webm",},
+     {id: "1",headword: "보다",sentence: " 내가 담근 김치가 사 먹는 김치보다 맛있다.",file: "1-1.webm",},
 {id: "2",headword: "보다",sentence: " 나는 상대방보다 언변이 더 좋다.",file: "1-2.webm",},
 {id: "3",headword: "보다",sentence: " 소형 선풍기보다 대형 선풍기가 바람이 더 세다.",file: "1-3.webm",},
 {id: "4",headword: "보다",sentence: " 청력검사 결과 나는 오른쪽 귀의 청력이 더 좋다.",file: "1-4.webm",},
@@ -866,15 +870,77 @@
 {id: "499",headword: "귀찮다,불편,성가시다",sentence: " 지하철에서 옆 사람이 다리를 벌리고 앉아 짜증나고 불편하다.",file: "국립국어원 한국수어사전 외 페이지 11개 - 프로필 1 - Microsoft​ Edge 2024-09-09 12-48-04.mp4",},
 {id: "500",headword: "귀찮다,불편,성가시다",sentence: " 나는 오른쪽 다리가 부러져 걷기가 불편하다.",file: "국립국어원 한국수어사전 외 페이지 11개 - 프로필 1 - Microsoft​ Edge 2024-09-09 12-48-21.mp4",},
 
+      // 여기에 나머지 클립들 계속 추가하면 됨
+      // { id: "2", headword: "...", sentence: "...", file: "1-2.webm" },
     ];
 
     let clipsCurrent = [...clipsOriginal];
     let currentIndex = 0;
     let isRandom = false;
 
+    // ===== 상태 저장 / 복원 함수 =====
+    function saveState() {
+      try {
+        const data = {
+          isRandom,
+          currentIndex,
+          order: clipsCurrent.map(c => c.id),
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error("saveState error", e);
+      }
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        clipsCurrent = [...clipsOriginal];
+        currentIndex = 0;
+        isRandom = false;
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+
+        isRandom = !!data.isRandom;
+
+        if (Array.isArray(data.order) && data.order.length > 0) {
+          const idToClip = new Map(clipsOriginal.map(c => [c.id, c]));
+          const reordered = data.order
+            .map(id => idToClip.get(id))
+            .filter(Boolean);
+
+          if (reordered.length === clipsOriginal.length) {
+            clipsCurrent = reordered;
+          } else {
+            clipsCurrent = [...clipsOriginal];
+          }
+        } else {
+          clipsCurrent = [...clipsOriginal];
+        }
+
+        if (
+          typeof data.currentIndex === "number" &&
+          data.currentIndex >= 0 &&
+          data.currentIndex < clipsCurrent.length
+        ) {
+          currentIndex = data.currentIndex;
+        } else {
+          currentIndex = 0;
+        }
+      } catch (e) {
+        console.error("loadState error", e);
+        clipsCurrent = [...clipsOriginal];
+        currentIndex = 0;
+        isRandom = false;
+      }
+    }
+
     // ===== 2. DOM 요소 =====
     const videoEl = document.getElementById("video");
-    const videoWrapperEl = document.getElementById("videoWrapper"); // ★ 추가
+    const videoWrapperEl = document.getElementById("videoWrapper");
     const clipTitleEl = document.getElementById("clipTitle");
     const clipMetaEl = document.getElementById("clipMeta");
     const answerBoxEl = document.getElementById("answerBox");
@@ -896,7 +962,6 @@
     const randomBtn = document.getElementById("randomBtn");
     const toggleAnswerBtn = document.getElementById("toggleAnswerBtn");
 
-    // ★ 팝업 요소
     const exampleOverlayEl = document.getElementById("exampleOverlay");
     const exampleTextEl = document.getElementById("exampleText");
 
@@ -929,10 +994,12 @@
       answerHeadwordEl.textContent = clip.headword;
       answerSentenceEl.textContent = clip.sentence;
 
-      // ★ 팝업에도 용례 문장 반영 (번호는 제거한 버전 사용)
       exampleTextEl.textContent = pureSentence;
 
       updateListActive();
+
+      // 상태 저장
+      saveState();
     }
 
     function updateListActive() {
@@ -974,6 +1041,9 @@
       updateRandomUI();
       buildList();
       loadClip(currentIndex, { autoplay: false });
+
+      // 모드 전환 후 상태 저장
+      saveState();
     }
 
     function nextClip() {
@@ -1006,7 +1076,6 @@
       }
     }
 
-    // ★ 수정: 전체화면은 video 자체가 아닌 wrapper 기준
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         videoWrapperEl.requestFullscreen?.();
@@ -1020,7 +1089,6 @@
       videoEl.currentTime = videoEl.duration * percent;
     }
 
-    // ★ 팝업 토글 함수
     function toggleExampleOverlay() {
       exampleOverlayEl.classList.toggle("show");
     }
@@ -1107,7 +1175,7 @@
         case "Enter":
           toggleAnswer();
           break;
-        case "e": // ★ 추가
+        case "e":
         case "E":
           e.preventDefault();
           toggleExampleOverlay();
@@ -1122,9 +1190,17 @@
 
     // ===== 6. 초기화 =====
     function init() {
+      // 저장된 상태 복원
+      loadState();
+
+      // 랜덤/순차 UI 반영
       updateRandomUI();
+
+      // 복원된 순서대로 목록 생성
       buildList();
-      loadClip(0, { autoplay: false });
+
+      // 복원된 currentIndex 기준으로 로드
+      loadClip(currentIndex, { autoplay: false });
     }
 
     init();
