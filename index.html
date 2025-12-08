@@ -2,668 +2,484 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>음성통역 연습 플레이어</title>
+  <title>음성통역 학습 사이트 - 테스트</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #0f172a;
-      --card: #1f2937;
-      --accent: #3b82f6;
-      --accent-soft: rgba(59,130,246,0.2);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --danger: #f97373;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
-      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 960px;
-      margin: 16px;
-      padding: 20px;
-      border-radius: 18px;
-      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.9));
-      box-shadow:
-        0 24px 60px rgba(0,0,0,0.7),
-        0 0 0 1px rgba(148,163,184,0.25);
+      font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      min-height: 100vh;
     }
-
     header {
+      padding: 0.75rem 1.25rem;
+      background: #020617;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 1rem;
       flex-wrap: wrap;
+      border-bottom: 1px solid #1f2937;
     }
-
-    .title-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    h1 {
-      font-size: 1.4rem;
+    header h1 {
+      font-size: 1rem;
       margin: 0;
     }
-
-    .subtitle {
+    header .meta {
       font-size: 0.85rem;
-      color: var(--muted);
+      opacity: 0.8;
     }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      font-size: 0.75rem;
-      color: var(--muted);
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
     }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,0.3);
-    }
-
-    .main {
+    .player-area {
       display: grid;
-      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.6fr);
-      gap: 16px;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 1rem;
+      align-items: stretch;
     }
-
-    @media (max-width: 840px) {
-      .main {
-        grid-template-columns: 1fr;
+    @media (max-width: 900px) {
+      .player-area {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
-
-    .video-card,
-    .info-card {
-      background: radial-gradient(circle at top left, rgba(148,163,184,0.08), rgba(15,23,42,0.96));
-      border-radius: 16px;
-      padding: 12px 12px 14px;
-      border: 1px solid rgba(148,163,184,0.35);
+    .video-card {
+      background: #020617;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 0.5rem;
     }
-
-    .video-wrapper {
-      position: relative;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #020617;
-      border: 1px solid rgba(148,163,184,0.3);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.7);
-    }
-
     video {
       width: 100%;
-      display: block;
+      border-radius: 0.75rem;
       background: #000;
+      max-height: 60vh;
     }
-
-    .video-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.3);
-    }
-
-    .controls-primary,
-    .controls-secondary {
+    .controls-top,
+    .controls-bottom {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .controls-primary {
-      margin-top: 4px;
+      gap: 0.5rem;
       align-items: center;
-    }
-
-    .controls-secondary {
       justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15,23,42,0.95);
-      color: var(--text);
       font-size: 0.85rem;
+    }
+    .btn {
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.8rem;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-      white-space: nowrap;
+      gap: 0.3rem;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s;
+      user-select: none;
     }
-
     .btn:hover {
-      background: rgba(30,64,175,0.75);
-      border-color: rgba(96,165,250,0.9);
-      box-shadow: 0 0 0 1px rgba(96,165,250,0.6);
+      background: #1f2937;
+      border-color: #4b5563;
+      transform: translateY(-1px);
     }
-
     .btn:active {
-      transform: translateY(1px);
-      box-shadow: none;
+      transform: translateY(0);
+      background: #030712;
     }
-
     .btn-primary {
-      background: var(--accent);
-      border-color: rgba(129,140,248,0.9);
-      box-shadow: 0 12px 25px rgba(59,130,246,0.45);
-      font-weight: 600;
-    }
-
-    .btn-primary:hover {
       background: #2563eb;
+      border-color: #3b82f6;
     }
-
-    .btn-toggle {
-      background: rgba(15,23,42,0.95);
+    .btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #60a5fa;
     }
-
-    .btn-toggle.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: #bfdbfe;
-    }
-
-    .key-hint {
-      font-size: 0.7rem;
-      padding: 1px 6px;
+    .chip {
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15,23,42,0.95);
-      color: var(--muted);
-    }
-
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      padding: 0.2rem 0.6rem;
       font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .progress-row input[type="range"] {
-      flex: 1;
-      cursor: pointer;
-      accent-color: var(--accent);
-    }
-
-    .answer-header {
-      display: flex;
-      justify-content: space-between;
+      background: #0b1120;
+      border: 1px solid #1f2937;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 0.25rem;
     }
-
-    .answer-box {
-      margin-top: 8px;
-      padding: 10px 11px;
-      border-radius: 12px;
-      background: rgba(15,23,42,0.95);
-      border: 1px dashed rgba(148,163,184,0.6);
-      min-height: 48px;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      white-space: pre-line;
+    .chip-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      background: #4b5563;
     }
-
-    .answer-box.hidden-text {
-      color: var(--muted);
-      font-style: italic;
+    .chip-dot.on {
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
     }
-
-    .answer-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .answer-text strong {
-      color: #e5e7eb;
-    }
-
-    .shortcut-list {
-      font-size: 0.78rem;
-      color: var(--muted);
+    .info-card {
+      background: #020617;
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-top: 6px;
+      gap: 0.6rem;
+      font-size: 0.9rem;
     }
-
-    .shortcut-item {
-      display: flex;
-      gap: 4px;
-      align-items: baseline;
+    .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
     }
-
-    .shortcut-keys {
-      min-width: 78px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.72rem;
-      color: #cbd5f5;
+    .answer-box {
+      background: #020617;
+      border-radius: 0.6rem;
+      border: 1px dashed #374151;
+      padding: 0.6rem 0.7rem;
+      margin-top: 0.3rem;
     }
-
-    .shortcut-desc {
-      flex: 1;
+    .answer-line {
+      margin-top: 0.3rem;
     }
-
-    footer {
-      margin-top: 6px;
+    .answer-line strong {
+      color: #e5e7eb;
+    }
+    .hidden {
+      display: none;
+    }
+    .kbd-hint {
       font-size: 0.75rem;
-      color: var(--muted);
+      color: #9ca3af;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.6rem;
+    }
+    .kbd {
+      border-radius: 0.35rem;
+      border: 1px solid #4b5563;
+      padding: 0.05rem 0.3rem;
+      font-size: 0.7rem;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .list-card {
+      margin-top: 0.5rem;
+      background: #020617;
+      border-radius: 0.6rem;
+      border: 1px solid #111827;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .list-item {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .small-pill {
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.45);
-      background: rgba(15,23,42,0.96);
-    }
-
-    select, input[type="range"] {
-      background: rgba(15,23,42,0.96);
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      color: var(--text);
-      padding: 4px 8px;
+      padding: 0.35rem 0.6rem;
       font-size: 0.8rem;
+      border-bottom: 1px solid #020617;
+      cursor: pointer;
     }
-
-    select:focus, input[type="range"]:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
+    .list-item:last-child {
+      border-bottom: none;
     }
-
-    .speed-label {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-right: 4px;
+    .list-item.active {
+      background: #1f2937;
     }
-
-    .counter-pill {
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.5);
-      font-size: 0.78rem;
-      color: var(--muted);
+    .list-item span.idx {
+      opacity: 0.6;
+      margin-right: 0.3rem;
     }
-
-    .danger {
-      color: var(--danger);
+    footer {
+      padding: 0.5rem 1rem;
+      font-size: 0.7rem;
+      color: #9ca3af;
+      border-top: 1px solid #1f2937;
+      background: #020617;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="title-group">
-        <h1>음성통역 연습 플레이어 (테스트)</h1>
-        <div class="subtitle">
-          수어 영상을 보고 <strong>머릿속으로 해석 → 입으로 말하기</strong> 연습 후<br />
-          「정답 보기」로 표제어와 용례 문장을 확인하세요.
-        </div>
-      </div>
-      <div class="badge">
-        <span class="badge-dot"></span>
-        GitHub 정적 페이지용 · 로컬 영상 재생
-      </div>
-    </header>
+  <header>
+    <h1>음성통역 학습 · 테스트(보다 / 가져오다)</h1>
+    <div class="meta">
+      GitHub에 올려서 사용 가능 · 단축키: <span class="kbd">?</span> 도움말 참고
+    </div>
+  </header>
 
-    <div class="main">
-      <!-- 왼쪽: 영상 / 기본 조작 -->
+  <main>
+    <div class="player-area">
+      <!-- 왼쪽: 비디오 -->
       <section class="video-card">
-        <div class="video-wrapper" id="video-container">
-          <video id="video" controls playsinline>
-            <!-- src는 JS에서 설정 -->
-            브라우저가 video 태그를 지원하지 않습니다.
-          </video>
-        </div>
-
-        <div class="video-meta">
-          <span class="pill" id="meta-index">0 / 0</span>
-          <span class="pill" id="meta-file">파일: -</span>
-        </div>
-
-        <div class="controls-primary">
-          <button class="btn" id="btn-prev">
-            ◀ 이전 (<span class="key-hint">←</span>)
-          </button>
-          <button class="btn btn-primary" id="btn-play-pause">
-            ▶ 재생 / 일시정지 (<span class="key-hint">Space</span>)
-          </button>
-          <button class="btn" id="btn-next">
-            다음 ▶ (<span class="key-hint">→</span>)
-          </button>
-          <button class="btn btn-toggle" id="btn-random">
-            🔀 랜덤 순서 (<span class="key-hint">R</span>)
-          </button>
-          <button class="btn" id="btn-fullscreen">
-            ⛶ 전체화면 (<span class="key-hint">F</span>)
-          </button>
-        </div>
-
-        <div class="controls-secondary">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="speed-label">재생속도</span>
-            <select id="speed-select">
-              <option value="0.5">0.5x</option>
-              <option value="0.75">0.75x</option>
-              <option value="1" selected>1.0x</option>
-              <option value="1.25">1.25x</option>
-              <option value="1.5">1.5x</option>
-              <option value="2">2.0x</option>
-            </select>
+        <div class="controls-top">
+          <div>
+            <span class="label">현재 영상</span><br />
+            <strong id="clipTitle">–</strong>
+            <span id="clipMeta" style="font-size:0.8rem; opacity:0.75;"></span>
           </div>
-          <div class="progress-row">
-            <span id="time-current">00:00</span>
-            <input type="range" id="seek-bar" min="0" max="100" step="0.1" value="0" />
-            <span id="time-duration">00:00</span>
+          <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn" id="prevBtn">← 이전(Left)</button>
+            <button class="btn btn-primary" id="nextBtn">다음(Right) →</button>
+            <button class="btn" id="togglePlayBtn">▶ / ⏸</button>
+          </div>
+        </div>
+
+        <video id="video" controls playsinline preload="metadata">
+          <!-- webm 파일은 같은 폴더에 넣어두면 됨 -->
+        </video>
+
+        <div class="controls-bottom">
+          <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn" id="slowerBtn">느리게(↓)</button>
+            <button class="btn" id="fasterBtn">빠르게(↑)</button>
+            <button class="btn" id="backwardBtn">⏪ 5초([)</button>
+            <button class="btn" id="forwardBtn">⏩ 5초(])</button>
+            <button class="btn" id="fullscreenBtn">전체화면(F)</button>
+          </div>
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            <button class="btn" id="randomBtn">랜덤(R)</button>
+            <span class="chip">
+              <span id="randomDot" class="chip-dot"></span>
+              <span id="randomText">순차 재생</span>
+            </span>
           </div>
         </div>
       </section>
 
-      <!-- 오른쪽: 정답/단축키 안내 -->
+      <!-- 오른쪽: 정답 / 리스트 / 단축키 안내 -->
       <section class="info-card">
-        <div class="answer-header">
-          <div>
-            <div class="answer-label">현재 문제</div>
-            <div id="current-label" style="font-size:0.9rem;margin-top:2px;color:#e5e7eb;">
-              -
+        <div>
+          <div class="label">정답 확인</div>
+          <button class="btn btn-primary" id="toggleAnswerBtn">정답 보기 / 숨기기 (Enter)</button>
+          <div class="answer-box hidden" id="answerBox">
+            <div class="answer-line">
+              <strong>표제어:</strong> <span id="answerHeadword">–</span>
+            </div>
+            <div class="answer-line">
+              <strong>용례:</strong>
+              <div id="answerSentence" style="margin-top:0.2rem;"></div>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-            <button class="btn btn-primary" id="btn-toggle-answer">
-              정답 보기 (<span class="key-hint">A</span>)
-            </button>
-            <span class="answer-label" id="answer-status">현재: 정답 숨김</span>
+        </div>
+
+        <div>
+          <div class="label">목록</div>
+          <div class="list-card" id="listContainer">
+            <!-- JS로 목록 생성 -->
           </div>
         </div>
 
-        <div class="answer-box hidden-text" id="answer-box">
-          정답을 보려면 위의 「정답 보기」 버튼 또는 A 키를 누르세요.
-        </div>
-
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <span class="shortcut-keys">← / →</span>
-            <span class="shortcut-desc">이전 / 다음 영상으로 이동</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">Space</span>
-            <span class="shortcut-desc">재생 / 일시정지</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">R</span>
-            <span class="shortcut-desc">랜덤 순서 토글 (켜면 전체 목록 섞기)</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">F</span>
-            <span class="shortcut-desc">전체화면 토글 (영상 영역 기준)</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">J / L</span>
-            <span class="shortcut-desc">5초 뒤로(J) / 5초 앞으로(L) 이동</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">↓ / ↑</span>
-            <span class="shortcut-desc">재생속도 0.1x 단위로 느리게 / 빠르게</span>
-          </div>
-          <div class="shortcut-item">
-            <span class="shortcut-keys">A</span>
-            <span class="shortcut-desc">정답 보기 / 숨기기</span>
+        <div>
+          <div class="label">단축키 안내</div>
+          <div class="kbd-hint">
+            <span><span class="kbd">Space</span> 재생/일시정지</span>
+            <span><span class="kbd">← / →</span> 이전 / 다음</span>
+            <span><span class="kbd">↑ / ↓</span> 속도 조절</span>
+            <span><span class="kbd">[ / ]</span> -5초 / +5초</span>
+            <span><span class="kbd">F</span> 전체화면</span>
+            <span><span class="kbd">R</span> 랜덤 토글 + 순서 섞기</span>
+            <span><span class="kbd">0~9</span> 해당 % 위치로 점프</span>
+            <span><span class="kbd">Enter</span> 정답 보기/숨기기</span>
           </div>
         </div>
       </section>
     </div>
+  </main>
 
-    <footer>
-      <div class="small-pill">
-        🔧 GitHub에 올릴 때: <code>index.html</code> + <code>videos/파일명.webm</code> 구조 유지
-      </div>
-      <div class="counter-pill" id="debug-info">
-        준비 중...
-      </div>
-    </footer>
-  </div>
+  <footer>
+    <div>테스트 데이터: 「보다」 5문장, 「가져오다」 2문장</div>
+    <div>영상 파일(.webm)은 이 HTML 파일과 같은 폴더에 두면 됩니다.</div>
+  </footer>
 
   <script>
     // ===== 1. 데이터 정의 =====
-    // 동영상 파일은 ./videos 폴더에 넣는다고 가정
-    const VIDEO_BASE_PATH = "./videos/";
-
-    /** @type {{id:string, file:string, headword:string, sentence:string}[]} */
-    const ITEMS = [
+    // 실제로는 여기만 교체해서 확장하면 됨
+    const clipsOriginal = [
       {
         id: "1-1",
-        file: "1-1.webm",
         headword: "보다",
-        sentence: "1) 내가 담근 김치가 사 먹는 김치보다 맛있다."
+        sentence: "1) 내가 담근 김치가 사 먹는 김치보다 맛있다.",
+        file: "1-1.webm",
       },
       {
         id: "1-2",
-        file: "1-2.webm",
         headword: "보다",
-        sentence: "2) 나는 상대방보다 언변이 더 좋다."
+        sentence: "2) 나는 상대방보다 언변이 더 좋다.",
+        file: "1-2.webm",
       },
       {
         id: "1-3",
-        file: "1-3.webm",
         headword: "보다",
-        sentence: "3) 소형 선풍기보다 대형 선풍기가 바람이 더 세다."
+        sentence: "3) 소형 선풍기보다 대형 선풍기가 바람이 더 세다.",
+        file: "1-3.webm",
       },
       {
         id: "1-4",
-        file: "1-4.webm",
         headword: "보다",
-        sentence: "4) 청력검사 결과 나는 오른쪽 귀의 청력이 더 좋다."
+        sentence: "4) 청력검사 결과 나는 오른쪽 귀의 청력이 더 좋다.",
+        file: "1-4.webm",
       },
       {
         id: "1-5",
-        file: "1-5.webm",
         headword: "보다",
-        sentence: "5) 언니가 나보다 요리 솜씨가 더 뛰어나다."
+        sentence: "5) 언니가 나보다 요리 솜씨가 더 뛰어나다.",
+        file: "1-5.webm",
       },
       {
         id: "2-1",
-        file: "2-1.webm",
         headword: "가져오다",
-        sentence: "1) 따뜻한 물을 가져다주세요."
+        sentence: "1) 따뜻한 물을 가져다주세요.",
+        file: "2-1.webm",
       },
       {
         id: "2-2",
-        file: "2-2.webm",
         headword: "가져오다",
-        sentence: "2) 회의록을 저에게 가지고 오세요."
-      }
+        sentence: "2) 회의록을 저에게 가지고 오세요.",
+        file: "2-2.webm",
+      },
     ];
 
-    // ===== 2. 상태 관리 =====
-    let playOrder = ITEMS.map((_, i) => i); // 현재 재생 순서(인덱스 배열)
-    let currentOrderIndex = 0;              // playOrder에서의 위치
+    // 실제 재생에 사용하는 배열 (순차/랜덤 모두 여기에 반영)
+    let clipsCurrent = [...clipsOriginal];
+    let currentIndex = 0;
     let isRandom = false;
-    let answerVisible = false;
 
-    // ===== 3. DOM 참조 =====
+    // ===== 2. DOM 요소 =====
     const videoEl = document.getElementById("video");
-    const metaIndexEl = document.getElementById("meta-index");
-    const metaFileEl = document.getElementById("meta-file");
-    const currentLabelEl = document.getElementById("current-label");
-    const answerBoxEl = document.getElementById("answer-box");
-    const answerStatusEl = document.getElementById("answer-status");
-    const debugInfoEl = document.getElementById("debug-info");
+    const clipTitleEl = document.getElementById("clipTitle");
+    const clipMetaEl = document.getElementById("clipMeta");
+    const answerBoxEl = document.getElementById("answerBox");
+    const answerHeadwordEl = document.getElementById("answerHeadword");
+    const answerSentenceEl = document.getElementById("answerSentence");
+    const listContainerEl = document.getElementById("listContainer");
 
-    const btnPrev = document.getElementById("btn-prev");
-    const btnNext = document.getElementById("btn-next");
-    const btnPlayPause = document.getElementById("btn-play-pause");
-    const btnRandom = document.getElementById("btn-random");
-    const btnFullscreen = document.getElementById("btn-fullscreen");
-    const btnToggleAnswer = document.getElementById("btn-toggle-answer");
+    const randomDotEl = document.getElementById("randomDot");
+    const randomTextEl = document.getElementById("randomText");
 
-    const speedSelect = document.getElementById("speed-select");
-    const seekBar = document.getElementById("seek-bar");
-    const timeCurrent = document.getElementById("time-current");
-    const timeDuration = document.getElementById("time-duration");
-    const videoContainer = document.getElementById("video-container");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const togglePlayBtn = document.getElementById("togglePlayBtn");
+    const slowerBtn = document.getElementById("slowerBtn");
+    const fasterBtn = document.getElementById("fasterBtn");
+    const backwardBtn = document.getElementById("backwardBtn");
+    const forwardBtn = document.getElementById("forwardBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const randomBtn = document.getElementById("randomBtn");
+    const toggleAnswerBtn = document.getElementById("toggleAnswerBtn");
 
-    // ===== 4. 유틸리티 =====
-    function pad(num) {
-      return num.toString().padStart(2, "0");
-    }
+    // ===== 3. 도우미 함수들 =====
 
-    function formatTime(sec) {
-      if (!isFinite(sec)) return "00:00";
-      const s = Math.floor(sec);
-      const m = Math.floor(s / 60);
-      const r = s % 60;
-      return `${pad(m)}:${pad(r)}`;
-    }
-
-    function shuffleArray(arr) {
-      const copy = arr.slice();
-      for (let i = copy.length - 1; i > 0; i--) {
+    // Fisher–Yates Shuffle
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-      return copy;
+      return arr;
     }
 
-    function getCurrentItem() {
-      const idx = playOrder[currentOrderIndex] ?? 0;
-      return ITEMS[idx];
-    }
+    function loadClip(index, { autoplay = true } = {}) {
+      if (index < 0 || index >= clipsCurrent.length) return;
+      currentIndex = index;
+      const clip = clipsCurrent[currentIndex];
 
-    function updateDebugInfo() {
-      const item = getCurrentItem();
-      const mode = isRandom ? "랜덤" : "순서";
-      debugInfoEl.textContent = `모드: ${mode} · 현재: ${currentOrderIndex + 1}/${playOrder.length} · ID: ${item.id}`;
-    }
-
-    // ===== 5. 로딩 / 화면 갱신 =====
-    function loadCurrentVideo(autoPlay = false) {
-      const total = playOrder.length;
-      if (total === 0) return;
-
-      // 범위 보정
-      if (currentOrderIndex < 0) currentOrderIndex = total - 1;
-      if (currentOrderIndex >= total) currentOrderIndex = 0;
-
-      const itemIndex = playOrder[currentOrderIndex];
-      const item = ITEMS[itemIndex];
-
-      const src = VIDEO_BASE_PATH + item.file;
-      if (videoEl.src !== src) {
-        videoEl.src = src;
+      videoEl.src = clip.file;
+      // autoplay는 사용자가 이미 상호작용한 후에만 제대로 동작할 수 있음(브라우저 정책)
+      if (autoplay) {
+        videoEl.play().catch(() => {});
       }
 
-      // 메타 정보
-      metaIndexEl.textContent = `${currentOrderIndex + 1} / ${total}`;
-      metaFileEl.textContent = `파일: ${item.file}`;
-      currentLabelEl.textContent = `${item.headword} · ${item.id}`;
+      clipTitleEl.textContent = `${clip.headword}`;
+      clipMetaEl.textContent = ` · ${clip.sentence.replace(/^\d+\)\s*/, "")} (파일: ${clip.file})`;
 
-      // 정답은 항상 숨김 상태로 시작
-      setAnswerVisible(false);
+      // 정답 영역 업데이트(보이지만 않을 수 있음)
+      answerHeadwordEl.textContent = clip.headword;
+      answerSentenceEl.textContent = clip.sentence;
 
-      // 재생 시간 표시 초기화
-      seekBar.value = 0;
-      timeCurrent.textContent = "00:00";
-      timeDuration.textContent = "00:00";
-
-      // 자동 재생
-      if (autoPlay) {
-        videoEl.currentTime = 0;
-        videoEl.play().catch(() => {
-          // 자동 재생 막힌 경우 무시
-        });
-      }
-
-      updateDebugInfo();
+      // 목록 active 표시
+      updateListActive();
     }
 
-    function setAnswerVisible(visible) {
-      answerVisible = visible;
-      const item = getCurrentItem();
-      if (visible) {
-        answerBoxEl.classList.remove("hidden-text");
-        answerBoxEl.innerHTML =
-          `<div class="answer-text"><strong>[표제어]</strong> ${item.headword}<br/><strong>[용례]</strong> ${item.sentence}</div>`;
-        answerStatusEl.textContent = "현재: 정답 표시 중";
-      } else {
-        answerBoxEl.classList.add("hidden-text");
-        answerBoxEl.textContent =
-          "정답을 보려면 위의 「정답 보기」 버튼 또는 A 키를 누르세요.";
-        answerStatusEl.textContent = "현재: 정답 숨김";
-      }
+    function updateListActive() {
+      const items = listContainerEl.querySelectorAll(".list-item");
+      items.forEach((item, idx) => {
+        if (idx === currentIndex) {
+          item.classList.add("active");
+        } else {
+          item.classList.remove("active");
+        }
+      });
     }
 
     function toggleAnswer() {
-      setAnswerVisible(!answerVisible);
+      answerBoxEl.classList.toggle("hidden");
     }
 
-    // ===== 6. 조작 함수 =====
-    function goNext(autoPlay = true) {
-      currentOrderIndex++;
-      if (currentOrderIndex >= playOrder.length) currentOrderIndex = 0;
-      loadCurrentVideo(autoPlay);
+    function updateRandomUI() {
+      if (isRandom) {
+        randomDotEl.classList.add("on");
+        randomTextEl.textContent = "랜덤 재생";
+      } else {
+        randomDotEl.classList.remove("on");
+        randomTextEl.textContent = "순차 재생";
+      }
     }
 
-    function goPrev(autoPlay = true) {
-      currentOrderIndex--;
-      if (currentOrderIndex < 0) currentOrderIndex = playOrder.length - 1;
-      loadCurrentVideo(autoPlay);
+    function toggleRandomMode() {
+      isRandom = !isRandom;
+
+      if (isRandom) {
+        // 랜덤 모드 켜질 때: 원본을 섞어서 clipsCurrent에 저장
+        clipsCurrent = shuffleArray(clipsOriginal);
+        // 새 순서 기준으로 0번부터 시작
+        currentIndex = 0;
+      } else {
+        // 랜덤 모드 끄면: 원래 순서로 복원
+        clipsCurrent = [...clipsOriginal];
+        currentIndex = 0;
+      }
+
+      // UI 반영
+      updateRandomUI();
+      buildList();      // 목록도 새 순서대로 다시 그림
+      loadClip(currentIndex, { autoplay: false }); // 현재 인덱스 클립 로드
     }
 
-    function togglePlayPause() {
+    function nextClip() {
+      const nextIndex = (currentIndex + 1) % clipsCurrent.length;
+      loadClip(nextIndex);
+    }
+
+    function prevClip() {
+      const prevIndex = (currentIndex - 1 + clipsCurrent.length) % clipsCurrent.length;
+      loadClip(prevIndex);
+    }
+
+    function changeSpeed(delta) {
+      let newRate = videoEl.playbackRate + delta;
+      if (newRate < 0.25) newRate = 0.25;
+      if (newRate > 3) newRate = 3;
+      videoEl.playbackRate = newRate;
+    }
+
+    function seekRelative(seconds) {
+      videoEl.currentTime = Math.max(0, videoEl.currentTime + seconds);
+    }
+
+    function togglePlay() {
       if (videoEl.paused) {
         videoEl.play().catch(() => {});
       } else {
@@ -671,191 +487,114 @@
       }
     }
 
-    function setRandomMode(on) {
-      isRandom = on;
-      if (on) {
-        // 현재 보고있는 아이템은 유지한 상태에서 순서만 섞고, 그 아이템을 맨 앞으로 배치
-        const currentItemIndex = playOrder[currentOrderIndex] ?? 0;
-        const base = ITEMS.map((_, i) => i);
-        const shuffled = shuffleArray(base);
-        const currentPos = shuffled.indexOf(currentItemIndex);
-        if (currentPos > 0) {
-          [shuffled[0], shuffled[currentPos]] = [shuffled[currentPos], shuffled[0]];
-        }
-        playOrder = shuffled;
-        currentOrderIndex = 0;
-        btnRandom.classList.add("active");
-      } else {
-        // 원래 순서로
-        const currentItem = getCurrentItem();
-        playOrder = ITEMS.map((_, i) => i);
-        currentOrderIndex = playOrder.indexOf(ITEMS.indexOf(currentItem));
-        btnRandom.classList.remove("active");
-      }
-      loadCurrentVideo(false);
-    }
-
-    function adjustPlaybackRate(delta) {
-      let rate = videoEl.playbackRate + delta;
-      rate = Math.min(2.0, Math.max(0.3, rate));
-      rate = Math.round(rate * 10) / 10; // 0.1 단위
-      videoEl.playbackRate = rate;
-      // 셀렉트 박스 갱신 (근사값 찾기)
-      let found = false;
-      for (const opt of speedSelect.options) {
-        if (Math.abs(parseFloat(opt.value) - rate) < 0.05) {
-          speedSelect.value = opt.value;
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        // 안 맞으면 그냥 value 업데이트용 임시 옵션으로 대체 가능하지만
-        // 여기서는 무시 (표시만 조금 어긋날 수 있음)
-      }
-    }
-
-    function seekBy(seconds) {
-      const t = videoEl.currentTime + seconds;
-      videoEl.currentTime = Math.min(videoEl.duration || t, Math.max(0, t));
-    }
-
     function toggleFullscreen() {
-      const isFull =
-        document.fullscreenElement === videoContainer ||
-        document.fullscreenElement === document.documentElement;
-      if (!isFull) {
-        if (videoContainer.requestFullscreen) {
-          videoContainer.requestFullscreen();
-        } else if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen();
-        }
+      if (!document.fullscreenElement) {
+        videoEl.requestFullscreen?.();
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+        document.exitFullscreen?.();
       }
     }
 
-    // ===== 7. 이벤트 바인딩 =====
-    // 버튼
-    btnNext.addEventListener("click", () => goNext(true));
-    btnPrev.addEventListener("click", () => goPrev(true));
-    btnPlayPause.addEventListener("click", togglePlayPause);
-    btnRandom.addEventListener("click", () => setRandomMode(!isRandom));
-    btnFullscreen.addEventListener("click", toggleFullscreen);
-    btnToggleAnswer.addEventListener("click", toggleAnswer);
+    function seekPercent(percent) {
+      if (!videoEl.duration || isNaN(videoEl.duration)) return;
+      videoEl.currentTime = videoEl.duration * percent;
+    }
 
-    // 속도 셀렉트
-    speedSelect.addEventListener("change", () => {
-      const rate = parseFloat(speedSelect.value || "1");
-      videoEl.playbackRate = rate;
-    });
+    // ===== 4. 목록 생성 =====
+    function buildList() {
+      listContainerEl.innerHTML = "";
+      clipsCurrent.forEach((clip, idx) => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+        div.innerHTML = `
+          <div>
+            <span class="idx">${idx + 1}.</span>
+            <strong>${clip.headword}</strong>
+            <span style="opacity:0.7;">${clip.sentence.replace(/^\d+\)\s*/, "")}</span>
+          </div>
+          <div style="opacity:0.6; font-size:0.75rem;">${clip.file}</div>
+        `;
+        div.addEventListener("click", () => {
+          loadClip(idx);
+        });
+        listContainerEl.appendChild(div);
+      });
+      updateListActive();
+    }
 
-    // 시크바
-    let isSeeking = false;
-    seekBar.addEventListener("input", () => {
-      isSeeking = true;
-      const percent = parseFloat(seekBar.value);
-      if (isFinite(videoEl.duration) && videoEl.duration > 0) {
-        const t = (percent / 100) * videoEl.duration;
-        videoEl.currentTime = t;
-        timeCurrent.textContent = formatTime(t);
-      }
-    });
-    seekBar.addEventListener("change", () => {
-      isSeeking = false;
-    });
+    // ===== 5. 이벤트 연결 =====
+    prevBtn.addEventListener("click", prevClip);
+    nextBtn.addEventListener("click", nextClip);
+    togglePlayBtn.addEventListener("click", togglePlay);
+    slowerBtn.addEventListener("click", () => changeSpeed(-0.25));
+    fasterBtn.addEventListener("click", () => changeSpeed(0.25));
+    backwardBtn.addEventListener("click", () => seekRelative(-5));
+    forwardBtn.addEventListener("click", () => seekRelative(5));
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+    randomBtn.addEventListener("click", toggleRandomMode);
+    toggleAnswerBtn.addEventListener("click", toggleAnswer);
 
-    // 비디오 시간 업데이트
-    videoEl.addEventListener("loadedmetadata", () => {
-      timeDuration.textContent = formatTime(videoEl.duration);
-    });
-    videoEl.addEventListener("timeupdate", () => {
-      if (!isSeeking && isFinite(videoEl.duration) && videoEl.duration > 0) {
-        const percent = (videoEl.currentTime / videoEl.duration) * 100;
-        seekBar.value = percent;
-        timeCurrent.textContent = formatTime(videoEl.currentTime);
-      }
-    });
-
-    // 자동 다음 영상
-    videoEl.addEventListener("ended", () => {
-      goNext(true);
-    });
+    // 비디오 끝났을 때 자동으로 다음 클립
+    videoEl.addEventListener("ended", nextClip);
 
     // 키보드 단축키
-    window.addEventListener("keydown", (e) => {
-      const tag = (e.target.tagName || "").toLowerCase();
-      // 입력창 포커스 시에는 단축키 막기
-      if (tag === "input" || tag === "textarea" || e.target.isContentEditable) {
-        return;
-      }
+    document.addEventListener("keydown", (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      // 입력창 포커스 있을 때(추후 텍스트 입력 기능 추가 대비) 키 막기
+      if (tag === "input" || tag === "textarea") return;
 
       switch (e.key) {
+        case " ":
+          e.preventDefault();
+          togglePlay();
+          break;
         case "ArrowRight":
           e.preventDefault();
-          goNext(true);
+          nextClip();
           break;
         case "ArrowLeft":
           e.preventDefault();
-          goPrev(true);
-          break;
-        case " ":
-          e.preventDefault();
-          togglePlayPause();
-          break;
-        case "r":
-        case "R":
-          e.preventDefault();
-          setRandomMode(!isRandom);
-          break;
-        case "f":
-        case "F":
-          e.preventDefault();
-          toggleFullscreen();
-          break;
-        case "j":
-        case "J":
-          e.preventDefault();
-          seekBy(-5);
-          break;
-        case "l":
-        case "L":
-          e.preventDefault();
-          seekBy(5);
+          prevClip();
           break;
         case "ArrowUp":
           e.preventDefault();
-          adjustPlaybackRate(0.1);
+          changeSpeed(0.25);
           break;
         case "ArrowDown":
           e.preventDefault();
-          adjustPlaybackRate(-0.1);
+          changeSpeed(-0.25);
           break;
-        case "a":
-        case "A":
-          e.preventDefault();
+        case "[":
+          seekRelative(-5);
+          break;
+        case "]":
+          seekRelative(5);
+          break;
+        case "f":
+        case "F":
+          toggleFullscreen();
+          break;
+        case "r":
+        case "R":
+          toggleRandomMode();
+          break;
+        case "Enter":
           toggleAnswer();
           break;
+        default:
+          // 숫자 0~9 퍼센트 점프
+          if (e.key >= "0" && e.key <= "9") {
+            const num = parseInt(e.key, 10);
+            seekPercent(num === 0 ? 0 : num / 10);
+          }
       }
     });
 
-    // ===== 8. 초기화 =====
+    // ===== 6. 초기화 =====
     function init() {
-      if (!ITEMS.length) {
-        debugInfoEl.textContent = "ITEMS 배열이 비어 있습니다.";
-        return;
-      }
-
-      playOrder = ITEMS.map((_, i) => i);
-      currentOrderIndex = 0;
-      isRandom = false;
-      btnRandom.classList.remove("active");
-      videoEl.playbackRate = 1.0;
-      speedSelect.value = "1";
-      setAnswerVisible(false);
-      loadCurrentVideo(false);
+      updateRandomUI();
+      buildList();
+      loadClip(0, { autoplay: false });
     }
 
     init();
