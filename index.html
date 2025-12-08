@@ -911,7 +911,7 @@
       return arr;
     }
 
-    function loadClip(index, { autoplay = true } = {}) {
+    function loadClip(index, { autoplay = false } = {}) {
       if (index < 0 || index >= clipsCurrent.length) return;
       currentIndex = index;
       const clip = clipsCurrent[currentIndex];
