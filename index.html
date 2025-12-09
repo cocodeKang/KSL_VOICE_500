@@ -281,6 +281,7 @@
             <button class="btn" id="prevBtn">← 이전(Left)</button>
             <button class="btn btn-primary" id="nextBtn">다음(Right) →</button>
             <button class="btn" id="togglePlayBtn">▶ / ⏸</button>
+            <button id="autoNextToggle" class="btn">자동재생: OFF</button>
           </div>
         </div>
 
@@ -1202,6 +1203,22 @@
     }
 
     init();
+
+    let autoNext = false;
+const autoNextBtn = document.getElementById('autoNextToggle');
+
+autoNextBtn.addEventListener('click', () => {
+  autoNext = !autoNext;
+  autoNextBtn.textContent = autoNext ? "자동재생: ON" : "자동재생: OFF";
+  autoNextBtn.classList.toggle("on", autoNext);
+});
+
+videoEl.addEventListener("ended", () => {
+  if (autoNext) {
+    // 여기를 너의 다음 영상 함수로 바꿔주기
+    goNextClip();
+  }
+});
   </script>
 </body>
 </html>
