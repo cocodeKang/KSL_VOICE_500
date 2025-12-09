@@ -263,7 +263,7 @@
   <header>
     <h1>음성통역 학습 · 테스트(보다 / 가져오다)</h1>
     <div class="meta">
-      v2.1
+      v2.0
     </div>
   </header>
 
@@ -281,7 +281,6 @@
             <button class="btn" id="prevBtn">← 이전(Left)</button>
             <button class="btn btn-primary" id="nextBtn">다음(Right) →</button>
             <button class="btn" id="togglePlayBtn">▶ / ⏸</button>
-            <button id="autoNextToggle" class="btn">자동재생: OFF</button>
           </div>
         </div>
 
@@ -1183,18 +1182,6 @@
           if (e.key >= "0" && e.key <= "9") {
             const num = parseInt(e.key, 10);
             seekPercent(num === 0 ? 0 : num / 10);
-
-            // ',' = 이전 프레임
-  if (e.key === ",") {
-    stepBackward();
-    e.preventDefault();
-  }
-
-  // '.' = 다음 프레임
-  if (e.key === ".") {
-    stepForward();
-    e.preventDefault();
-    
           }
       }
     });
@@ -1215,8 +1202,6 @@
     }
 
     init();
-
-});
   </script>
 </body>
 </html>
