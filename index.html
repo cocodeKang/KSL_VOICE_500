@@ -1202,6 +1202,41 @@
     }
 
     init();
+
+    /* ================================
+   ⭐ 프레임 단위 재생 기능
+   ','  → 이전 프레임
+   '.'  → 다음 프레임
+   ================================ */
+
+// 기본 FPS (영상 30fps 기준)
+let FRAME_TIME = 1 / 30;
+
+// 다음 프레임
+function stepForward() {
+  videoEl.pause();
+  videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + FRAME_TIME);
+}
+
+// 이전 프레임
+function stepBackward() {
+  videoEl.pause();
+  videoEl.currentTime = Math.max(0, videoEl.currentTime - FRAME_TIME);
+}
+
+// 단축키 바인딩
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+  if (e.key === ",") {
+    e.preventDefault();
+    stepBackward();
+  }
+  if (e.key === ".") {
+    e.preventDefault();
+    stepForward();
+  }
+});
   </script>
 </body>
 </html>
