@@ -1183,6 +1183,18 @@
           if (e.key >= "0" && e.key <= "9") {
             const num = parseInt(e.key, 10);
             seekPercent(num === 0 ? 0 : num / 10);
+
+            // ',' = 이전 프레임
+  if (e.key === ",") {
+    stepBackward();
+    e.preventDefault();
+  }
+
+  // '.' = 다음 프레임
+  if (e.key === ".") {
+    stepForward();
+    e.preventDefault();
+    
           }
       }
     });
@@ -1218,6 +1230,20 @@ videoEl.addEventListener("ended", () => {
     // 여기를 너의 다음 영상 함수로 바꿔주기
     goNextClip();
   }
+
+  // ⭐ 프레임 단위 이동(기본 1프레임 = 1/30초 가정)
+const FRAME_TIME = 1 / 30;  // 30fps 기준 → 필요하면 1/24, 1/60으로 바꿔도 됨
+
+function stepForward() {
+  videoEl.pause();  // 프레임 이동 시 재생 멈춤
+  videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + FRAME_TIME);
+}
+
+function stepBackward() {
+  videoEl.pause();
+  videoEl.currentTime = Math.max(0, videoEl.currentTime - FRAME_TIME);
+}
+  
 });
   </script>
 </body>
