@@ -1216,34 +1216,6 @@
 
     init();
 
-    let autoNext = false;
-const autoNextBtn = document.getElementById('autoNextToggle');
-
-autoNextBtn.addEventListener('click', () => {
-  autoNext = !autoNext;
-  autoNextBtn.textContent = autoNext ? "자동재생: ON" : "자동재생: OFF";
-  autoNextBtn.classList.toggle("on", autoNext);
-});
-
-videoEl.addEventListener("ended", () => {
-  if (autoNext) {
-    // 여기를 너의 다음 영상 함수로 바꿔주기
-    goNextClip();
-  }
-
-  // ⭐ 프레임 단위 이동(기본 1프레임 = 1/30초 가정)
-const FRAME_TIME = 1 / 30;  // 30fps 기준 → 필요하면 1/24, 1/60으로 바꿔도 됨
-
-function stepForward() {
-  videoEl.pause();  // 프레임 이동 시 재생 멈춤
-  videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + FRAME_TIME);
-}
-
-function stepBackward() {
-  videoEl.pause();
-  videoEl.currentTime = Math.max(0, videoEl.currentTime - FRAME_TIME);
-}
-  
 });
   </script>
 </body>
