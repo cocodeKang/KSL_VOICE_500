@@ -5,6 +5,7 @@
   <title>음성통역 학습 사이트 - 테스트</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    
     body {
       margin: 0;
       font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
@@ -65,6 +66,10 @@
       position: relative;
       width: 100%;
     }
+    .btn.on {
+  background: #16a34a !important;
+  border-color: #22c55e !important;
+}
 
     video {
       width: 100%;
@@ -281,6 +286,7 @@
             <button class="btn" id="prevBtn">← 이전(Left)</button>
             <button class="btn btn-primary" id="nextBtn">다음(Right) →</button>
             <button class="btn" id="togglePlayBtn">▶ / ⏸</button>
+            <button class="btn" id="autoNextToggle">자동재생: OFF</button>
           </div>
         </div>
 
@@ -1201,8 +1207,6 @@
       loadClip(currentIndex, { autoplay: false });
     }
 
-    init();
-
     /* ================================
    ⭐ 프레임 단위 재생 기능
    ','  → 이전 프레임
@@ -1237,6 +1241,33 @@ document.addEventListener("keydown", (e) => {
     stepForward();
   }
 });
+
+    /* ============================
+   자동재생 ON / OFF 토글 기능
+   ============================ */
+
+// 기본 상태(OFF)
+let autoNext = false;
+
+// 버튼 참조
+const autoNextBtn = document.getElementById("autoNextToggle");
+
+// 버튼 클릭 시 ON/OFF 토글
+autoNextBtn.addEventListener("click", () => {
+  autoNext = !autoNext;
+  autoNextBtn.textContent = autoNext ? "자동재생: ON" : "자동재생: OFF";
+  autoNextBtn.classList.toggle("on", autoNext);
+});
+
+// 영상이 끝났을 때 동작
+videoEl.addEventListener("ended", () => {
+  if (autoNext) {
+    nextClip(); // 또는 네 프로젝트에 있는 nextClip 함수명
+  } else {
+    // 자동재생 OFF면 아무것도 안 함
+  }
+});
+
   </script>
 </body>
 </html>
